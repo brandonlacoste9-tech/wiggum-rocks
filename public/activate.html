@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Activate License</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body { background: #000; color: #0ff; font-family: 'Press Start 2P', cursive; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    input { background: #111; border: 2px solid #0ff; color: #fff; padding: 15px; font-family: inherit; width: 400px; margin-bottom: 20px; text-align: center; }
+    button { background: #000; color: #f0f; border: 2px solid #f0f; padding: 15px 30px; font-family: inherit; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #f0f; color: #000; box-shadow: 0 0 20px #f0f; }
+    .status { margin-top: 20px; font-size: 12px; color: #f00; height: 20px; }
+  </style>
+</head>
+<body>
+  <h1>ENTER LICENSE KEY</h1>
+  <p style="font-size: 10px; color: #666; margin-bottom: 40px;">CHECK YOUR EMAIL FOR THE KEY</p>
+  
+  <input type="text" id="licenseInput" placeholder="eyJhbGciOiJIUz...">
+  <button onclick="activate()">ACTIVATE SYSTEM</button>
+  <div class="status" id="statusMsg"></div>
+
+  <script>
+    async function activate() {
+      const key = document.getElementById('licenseInput').value.trim();
+      const statusEl = document.getElementById('statusMsg');
+      
+      if (!key) {
+        statusEl.textContent = "PLEASE ENTER A KEY";
+        return;
+      }
+
+      // Verify with server before saving
+      try {
+        const res = await fetch('/api/status', {
+          headers: { 'X-Ralph-License': key }
+        });
+        const data = await res.json();
+
+        if (data.tier !== 'free' && data.tier !== undefined) {
+          // Success! Save and redirect
+          localStorage.setItem('adgenai_license', key);
+          statusEl.style.color = '#0f0';
+          statusEl.textContent = `LICENSE ACCEPTED: ${data.tier.toUpperCase()} TIER`;
+          
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+        } else {
+          statusEl.style.color = '#f00';
+          statusEl.textContent = "INVALID OR EXPIRED LICENSE";
+        }
+      } catch (e) {
+        statusEl.textContent = "CONNECTION ERROR";
+      }
+    }
+  </script>
+</body>
+</html>

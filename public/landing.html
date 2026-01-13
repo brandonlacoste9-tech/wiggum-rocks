@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Wiggum.Rocks | Hybrid AI Engine</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --neon-green: #0ff;
+        --neon-pink: #ff3f8e;
+        --neon-gold: #ffd700;
+        --bg: #0b0b0b;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: #eee;
+        font-family: "Press Start 2P", cursive;
+        text-align: center;
+      }
+
+      /* CRT Overlay */
+      .crt::before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.1) 50%
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.06),
+            rgba(0, 255, 0, 0.02),
+            rgba(0, 0, 255, 0.06)
+          );
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        position: relative;
+        z-index: 1;
+      }
+      h1 {
+        color: var(--neon-gold);
+        text-shadow: 4px 4px var(--neon-pink);
+        line-height: 1.5;
+        margin-bottom: 10px;
+      }
+      .hero p {
+        color: var(--neon-green);
+        font-size: 14px;
+        margin-bottom: 40px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 50px 0;
+      }
+      .card {
+        border: 4px solid #333;
+        padding: 20px;
+        background: #111;
+        transition: transform 0.2s;
+      }
+      .card:hover {
+        transform: scale(1.05);
+        border-color: var(--neon-green);
+      }
+      .card.pro {
+        border-color: var(--neon-pink);
+        box-shadow: 0 0 15px var(--neon-pink);
+      }
+      .card.ent {
+        border-color: var(--neon-gold);
+      }
+
+      .price {
+        font-size: 24px;
+        margin: 20px 0;
+        color: #fff;
+      }
+      .btn {
+        display: inline-block;
+        background: #000;
+        color: var(--neon-green);
+        border: 2px solid var(--neon-green);
+        padding: 15px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: var(--neon-green);
+        color: #000;
+      }
+
+      .btn-gold {
+        color: var(--neon-gold);
+        border-color: var(--neon-gold);
+      }
+      .btn-gold:hover {
+        background: var(--neon-gold);
+        color: #000;
+      }
+    </style>
+  </head>
+  <body class="crt">
+    <div class="container">
+      <div class="hero">
+        <h1>RALPH-WIGGUM<br />SURGICAL ENGINE</h1>
+        <p>THE HYBRID AI IDE THAT HELPS!</p>
+        <a href="/" class="btn">LAUNCH DEMO</a>
+        <a href="/activate" class="btn btn-gold">ENTER LICENSE</a>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>COMMUNITY</h3>
+          <div class="price">$0</div>
+          <ul style="text-align: left; font-size: 10px; line-height: 2">
+            <li>Ralph Engine (Ollama)</li>
+            <li>Syntax Fixes</li>
+            <li>Local Only</li>
+          </ul>
+        </div>
+
+        <div class="card pro">
+          <h3 style="color: var(--neon-pink)">PRO DEV</h3>
+          <div class="price">$29/mo</div>
+          <ul style="text-align: left; font-size: 10px; line-height: 2">
+            <li>Lisa Engine (Gemini)</li>
+            <li>Logic Reasoning</li>
+            <li>Priority Support</li>
+          </ul>
+          <button
+            class="btn"
+            onclick="buyPro()"
+            style="border-color: var(--neon-pink); color: var(--neon-pink)"
+          >
+            BUY NOW
+          </button>
+        </div>
+
+        <div class="card ent">
+          <h3 style="color: var(--neon-gold)">MR. BURNS</h3>
+          <div class="price">CUSTOM</div>
+          <ul style="text-align: left; font-size: 10px; line-height: 2">
+            <li>Gold Theme</li>
+            <li>On-Premise</li>
+            <li>SLA Guarantee</li>
+          </ul>
+          <button class="btn btn-gold" onclick="buyEnterprise()">BUY NOW ($999)</button>
+        </div>
+      </div>
+  
+      <p style="font-size: 10px; color: #666">Running on wiggum.rocks v1.0.0</p>
+    </div>
+    <script>
+      async function checkout(tier) {
+        // Find button to update text
+        const selector = tier === 'enterprise' ? '.card.ent button' : '.card.pro button';
+        const btn = document.querySelector(selector);
+        const originalText = btn.innerText;
+        btn.innerText = "PROCESSING...";
+        
+        try {
+          const res = await fetch('/api/checkout', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tier })
+          });
+          const data = await res.json();
+          if (data.url) window.location.href = data.url;
+          else alert("Checkout Error: " + data.error);
+        } catch (e) {
+          alert("Network Error");
+          btn.innerText = originalText;
+        }
+      }
+
+      function buyPro() { checkout('pro'); }
+      function buyEnterprise() { checkout('enterprise'); }
+    </script>
+  </body>
+</html>

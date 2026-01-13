@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment Successful</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body { background: #000; color: #0f0; font-family: 'Press Start 2P', cursive; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; }
+    h1 { color: #ffd700; text-shadow: 4px 4px #ff3f8e; margin-bottom: 40px; }
+    .key-box { background: #111; border: 4px dashed #0f0; padding: 20px; color: #fff; word-break: break-all; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+    .btn { display: inline-block; margin-top: 40px; background: #000; color: #0ff; border: 2px solid #0ff; padding: 15px 30px; text-decoration: none; cursor: pointer; }
+    .btn:hover { background: #0ff; color: #000; }
+  </style>
+</head>
+<body>
+  <h1>PAYMENT ACCEPTED</h1>
+  <p>HERE IS YOUR PRO LICENSE KEY:</p>
+  
+  <div id="loading">CONTACTING BANK...</div>
+  <div id="keyDisplay" class="key-box" style="display:none;"></div>
+  
+  <a href="/activate" class="btn">ACTIVATE NOW</a>
+
+  <script>
+    async function claim() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+
+      if (!sessionId) {
+        document.getElementById('loading').innerText = "ERROR: NO SESSION ID";
+        document.getElementById('loading').style.color = "red";
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/checkout/claim?session_id=${sessionId}`);
+        const data = await res.json();
+
+        if (data.license) {
+          document.getElementById('loading').style.display = 'none';
+          const keyBox = document.getElementById('keyDisplay');
+          keyBox.style.display = 'block';
+          keyBox.innerText = data.license;
+        } else {
+          throw new Error(data.error || "Unknown Error");
+        }
+      } catch (e) {
+        document.getElementById('loading').innerText = "FAILED: " + e.message;
+        document.getElementById('loading').style.color = "red";
+      }
+    }
+    claim();
+  </script>
+</body>
+</html>

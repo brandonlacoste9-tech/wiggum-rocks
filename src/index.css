@@ -1,0 +1,114 @@
+:root {
+  --bg: #0b0b0b;
+  --green: #0ff;
+  --pink: #ff3f8e;
+  --gold: #ffd700;
+  --term-bg: #111;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--green);
+  font-family: "Courier New", monospace;
+  overflow: hidden;
+}
+
+.screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* THEMES */
+.standard-green {
+  --primary: var(--green);
+}
+.luxury-gold {
+  --primary: var(--gold);
+}
+
+.title-screen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.title-screen h1 {
+  font-size: 60px;
+  color: var(--primary);
+  text-shadow: 4px 4px var(--pink);
+  margin-bottom: 10px;
+}
+.blink {
+  animation: blinker 1s linear infinite;
+  margin: 20px 0;
+  color: white;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+button {
+  background: black;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  padding: 15px 30px;
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+button:hover {
+  background: var(--primary);
+  color: black;
+}
+
+.main-ui .header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+textarea {
+  flex: 2;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  font-family: "Consolas", monospace;
+  font-size: 16px;
+  padding: 10px;
+  resize: none;
+  border-left: 4px solid var(--primary);
+}
+textarea:focus {
+  outline: none;
+}
+
+.terminal {
+  flex: 1;
+  background: var(--term-bg);
+  border-top: 2px dashed #333;
+  padding: 10px;
+  font-size: 14px;
+  overflow-y: auto;
+  color: #ccc;
+}
+
+.controls {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
