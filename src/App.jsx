@@ -62,11 +62,32 @@ function App() {
     checkStatus();
   }, []);
 
+  // ----------------------------------------------------------------
+  // Audio / Speech Engine
+  // ----------------------------------------------------------------
+  const speak = (text, persona) => {
+    if (!window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(text);
+    
+    if (persona === 'burns') {
+      u.pitch = 0.1; // Low and ominous
+      u.rate = 0.8;  // Slow
+    } else if (persona === 'ralph') {
+      u.pitch = 1.5; // High and squeaky
+      u.rate = 1.1; // Excited
+    } else if (persona === 'hounds') {
+      u.pitch = 0.5;
+      u.rate = 2.0;
+      u.volume = 1.0;
+    }
+    
+    window.speechSynthesis.speak(u);
+  };
+
   const runCode = async () => {
     setLog(prev => [...prev, `> Running code...`]);
     try {
       // Intentional Eval to catch syntax errors for demonstration
-      // In a real app, this would use the Bundler/Sandbox
       eval(code); 
       setLog(prev => [...prev, `> Execution Successful.`]);
     } catch (e) {
@@ -83,6 +104,13 @@ function App() {
            const p = fix.patches[0];
            setCode(prev => prev.replace(p.old, p.new));
            setLog(prev => [...prev, `✨ PATCH APPLIED!`]);
+           
+           // Audio Feedback
+           if (licenseInfo.tier === 'enterprise') {
+             speak("Excellent...", "burns");
+           } else {
+             speak("I'm helping!", "ralph");
+           }
         }
 
       } catch (analysisErr) {
@@ -97,7 +125,11 @@ function App() {
         <h1>WIGGUM.ROCKS</h1>
         <p>HYBRID AI SURGICAL ENGINE</p>
         <div className="blink">INSERT COIN (CLICK START)</div>
-        <button onClick={() => setStarted(true)}>START GAME</button>
+        <button onClick={() => {
+            setStarted(true);
+            if (licenseInfo.tier === 'enterprise') speak("Excellent", "burns");
+            else speak("Using the computer!", "ralph");
+        }}>START GAME</button>
         <div style={{marginTop: 20, fontSize: 10}}>LICENSE: {licenseInfo.tier.toUpperCase()}</div>
       </div>
     );
@@ -125,7 +157,12 @@ function App() {
         <button onClick={() => setLog([])}>CLEAR</button>
         {licenseInfo.tier === 'enterprise' && (
           <button 
-            onClick={() => { setLog(['🐕 RELEASE THE HOUNDS!', ...log]); setTimeout(() => setLog([]), 2000); }}
+            onClick={() => { 
+                setLog(['🐕 RELEASE THE HOUNDS!', ...log]); 
+                speak("Release the hounds.", "burns");
+                setTimeout(() => speak("Bark bark bark bark bark!", "hounds"), 1000);
+                setTimeout(() => setLog([]), 2000); 
+            }}
             style={{color: 'var(--neon-gold)', borderColor: 'var(--neon-gold)'}}
           >
             RELEASE HOUNDS
