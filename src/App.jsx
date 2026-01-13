@@ -94,6 +94,22 @@ function App() {
     checkStatus();
   }, []);
 
+  const milhouseQuotes = [
+    "Everything's coming up Milhouse!",
+    "My mom says I'm cool.",
+    "I'm not a nerd!",
+    "Remember the time I ate my goldfish? And you lied and said I didn't have any goldfish. But why did I have the bowl, Bart? Why did I have the bowl?",
+    "Step over this line and you're dead! ... Please don't step over that line.",
+    "Thrillhouse!",
+    "Is this the way to the cafeteria?"
+  ];
+
+  const askMilhouse = () => {
+    const quote = milhouseQuotes[Math.floor(Math.random() * milhouseQuotes.length)];
+    setLog(prev => [...prev, `👓 MILHOUSE: "${quote}"`]);
+    speak(quote, "milhouse");
+  };
+
   const speak = (text, persona) => {
     if (!window.speechSynthesis) return;
     const u = new SpeechSynthesisUtterance(text);
@@ -104,6 +120,9 @@ function App() {
     } else if (persona === 'ralph') {
       u.pitch = 1.5; 
       u.rate = 1.1; 
+    } else if (persona === 'milhouse') {
+      u.pitch = 1.2; // Nasal
+      u.rate = 1.0;
     } else if (persona === 'hounds') {
       u.pitch = 0.5;
       u.rate = 2.0;
@@ -188,6 +207,7 @@ function App() {
            <div className="sidebar-actions sidebar-tools">
              <button onClick={addFile}>+ NEW</button>
              <button onClick={deleteFile}>- DEL</button>
+             <button onClick={askMilhouse} style={{color: '#89CFF0'}}>👓 HELP</button>
            </div>
            <ul className="file-list">
              {Object.keys(files).map(f => (
