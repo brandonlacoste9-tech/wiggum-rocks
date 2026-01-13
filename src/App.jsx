@@ -4,11 +4,47 @@ import bus from './EventBus';
 
 function App() {
   const [started, setStarted] = useState(false);
-  const [code, setCode] = useState('// Write some buggy code here...\nconst x = ;');
   const [log, setLog] = useState([]);
   const [theme, setTheme] = useState('standard-green');
   const [licenseInfo, setLicenseInfo] = useState({ tier: 'free' });
   const [ralphQuote, setRalphQuote] = useState("I'm learning!");
+
+  // File System State
+  const [files, setFiles] = useState(() => {
+    const saved = localStorage.getItem('wiggum_files');
+    return saved ? JSON.parse(saved) : {
+      'main.js': '// Write your code here...\nconsole.log("Hello Springfield!");',
+      'utils.js': 'export const add = (a, b) => a + b;',
+      'notes.txt': 'Ralph is a good boy.'
+    };
+  });
+  const [activeFile, setActiveFile] = useState('main.js');
+
+  useEffect(() => {
+    localStorage.setItem('wiggum_files', JSON.stringify(files));
+  }, [files]);
+
+  const updateFile = (val) => {
+    setFiles(prev => ({ ...prev, [activeFile]: val }));
+  };
+
+  const addFile = () => {
+    const name = prompt("File Name (e.g., component.js):");
+    if (name) {
+      setFiles(prev => ({ ...prev, [name]: '// New File' }));
+      setActiveFile(name);
+    }
+  };
+
+  const deleteFile = () => {
+    if (Object.keys(files).length <= 1) return alert("Must keep one file!");
+    if (confirm(`Delete ${activeFile}?`)) {
+      const newFiles = { ...files };
+      delete newFiles[activeFile];
+      setFiles(newFiles);
+      setActiveFile(Object.keys(newFiles)[0]);
+    }
+  };
 
   const ralphQuotes = [
     "I'm learning!",
@@ -35,13 +71,9 @@ function App() {
   useEffect(() => {
     const list = licenseInfo.tier === 'enterprise' ? burnsQuotes : ralphQuotes;
     const interval = setInterval(() => {
-       // Occasional random switch directly to quote to feel more dynamic
        setRalphQuote(list[Math.floor(Math.random() * list.length)]);
     }, 5000);
-    
-    // Immediate update on tier change
     setRalphQuote(list[Math.floor(Math.random() * list.length)]);
-
     return () => clearInterval(interval);
   }, [licenseInfo.tier]);
 
@@ -62,50 +94,58 @@ function App() {
     checkStatus();
   }, []);
 
-  // ----------------------------------------------------------------
-  // Audio / Speech Engine
-  // ----------------------------------------------------------------
   const speak = (text, persona) => {
     if (!window.speechSynthesis) return;
     const u = new SpeechSynthesisUtterance(text);
     
     if (persona === 'burns') {
-      u.pitch = 0.1; // Low and ominous
-      u.rate = 0.8;  // Slow
+      u.pitch = 0.1; 
+      u.rate = 0.8; 
     } else if (persona === 'ralph') {
-      u.pitch = 1.5; // High and squeaky
-      u.rate = 1.1; // Excited
+      u.pitch = 1.5; 
+      u.rate = 1.1; 
     } else if (persona === 'hounds') {
       u.pitch = 0.5;
       u.rate = 2.0;
       u.volume = 1.0;
     }
-    
     window.speechSynthesis.speak(u);
   };
 
   const runCode = async () => {
-    setLog(prev => [...prev, `> Running code...`]);
+    const codeToRun = files[activeFile];
+    setLog(prev => [...prev, `> Running ${activeFile}...`]);
     try {
-      // Intentional Eval to catch syntax errors for demonstration
-      eval(code); 
-      setLog(prev => [...prev, `> Execution Successful.`]);
+      if (activeFile.endsWith('.js')) {
+          eval(codeToRun);
+          setLog(prev => [...prev, `> Execution Successful.`]);
+      } else {
+          setLog(prev => [...prev, `> Skipped execution (not a .js file)`]);
+      }
     } catch (e) {
       setLog(prev => [...prev, `❌ ERROR: ${e.message}`]);
       
-      // TRIGGER THE ORCHESTRATOR
       try {
-        const fix = await orchestrator.analyze(e, { 'App.jsx': code });
+        const fix = await orchestrator.analyze(e, files);
+        
         setLog(prev => [...prev, `💡 FIX PROPOSED (${fix.explanation || 'Analyzed'}):`]);
         setLog(prev => [...prev, JSON.stringify(fix.patches || fix, null, 2)]);
         
-        // Auto-apply first patch if available (Demo mode)
         if (fix.patches && fix.patches.length > 0) {
            const p = fix.patches[0];
-           setCode(prev => prev.replace(p.old, p.new));
+           
+           setFiles(prev => {
+             const targetFile = p.file || activeFile; 
+             if (!prev[targetFile]) return prev;
+             
+             return {
+               ...prev,
+               [targetFile]: prev[targetFile].replace(p.old, p.new)
+             };
+           });
+
            setLog(prev => [...prev, `✨ PATCH APPLIED!`]);
            
-           // Audio Feedback
            if (licenseInfo.tier === 'enterprise') {
              speak("Excellent...", "burns");
            } else {
@@ -136,22 +176,44 @@ function App() {
   }
 
   return (
-    <div className={`screen main-ui ${theme}`}>
+    <div className={`screen main-ui ${theme}`} style={{'--theme-color': theme === 'luxury-gold' ? '#ffd700' : '#0ff'}}>
       <div className="header">
         <span>MODE: {licenseInfo.tier === 'enterprise' ? '👑 GOD' : '👶 INFANT'}</span>
         <span>RALPH: "{ralphQuote}"</span>
         <span>LISA: {licenseInfo.tier !== 'free' ? 'ONLINE' : 'LOCKED'}</span>
       </div>
-      <div className="editor-container">
-        <textarea 
-          value={code} 
-          onChange={e => setCode(e.target.value)}
-          spellCheck="false"
-        />
-        <div className="terminal">
-           {log.map((l, i) => <div key={i}>{l}</div>)}
+      
+      <div className="ide-layout">
+        <div className="sidebar">
+           <div className="sidebar-actions sidebar-tools">
+             <button onClick={addFile}>+ NEW</button>
+             <button onClick={deleteFile}>- DEL</button>
+           </div>
+           <ul className="file-list">
+             {Object.keys(files).map(f => (
+               <li 
+                 key={f} 
+                 className={`file-item ${activeFile === f ? 'active' : ''}`}
+                 onClick={() => setActiveFile(f)}
+               >
+                 📄 {f}
+               </li>
+             ))}
+           </ul>
+        </div>
+
+        <div className="editor-container">
+          <textarea 
+            value={files[activeFile] || ''} 
+            onChange={e => updateFile(e.target.value)}
+            spellCheck="false"
+          />
+          <div className="terminal">
+             {log.map((l, i) => <div key={i}>{l}</div>)}
+          </div>
         </div>
       </div>
+
       <div className="controls">
         <button onClick={runCode}>RUN (CTRL+ENTER)</button>
         <button onClick={() => setLog([])}>CLEAR</button>
