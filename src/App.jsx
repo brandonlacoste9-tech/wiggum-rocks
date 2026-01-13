@@ -17,15 +17,33 @@ function App() {
     "Me fail English? That's unpossible!",
     "I'm a unit test!",
     "It tastes like burning!",
-    "Principalskipster! I found some code!"
+    "Principalskipster! I found some code!",
+    "I'm helping!",
+    "Go banana!"
+  ];
+
+  const burnsQuotes = [
+    "Excellent...",
+    "Release the hounds.",
+    "Smithers, who is this incompetent unit unit?",
+    "I'll keep my eye on you...",
+    "You call this code? It's pathetic.",
+    "Money fight!",
+    "Family. Religion. Friendship. These are the three demons you must slay if you wish to succeed in business."
   ];
 
   useEffect(() => {
+    const list = licenseInfo.tier === 'enterprise' ? burnsQuotes : ralphQuotes;
     const interval = setInterval(() => {
-      setRalphQuote(ralphQuotes[Math.floor(Math.random() * ralphQuotes.length)]);
+       // Occasional random switch directly to quote to feel more dynamic
+       setRalphQuote(list[Math.floor(Math.random() * list.length)]);
     }, 5000);
+    
+    // Immediate update on tier change
+    setRalphQuote(list[Math.floor(Math.random() * list.length)]);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [licenseInfo.tier]);
 
   // Load License/Theme on mount
   useEffect(() => {
@@ -105,6 +123,14 @@ function App() {
       <div className="controls">
         <button onClick={runCode}>RUN (CTRL+ENTER)</button>
         <button onClick={() => setLog([])}>CLEAR</button>
+        {licenseInfo.tier === 'enterprise' && (
+          <button 
+            onClick={() => { setLog(['🐕 RELEASE THE HOUNDS!', ...log]); setTimeout(() => setLog([]), 2000); }}
+            style={{color: 'var(--neon-gold)', borderColor: 'var(--neon-gold)'}}
+          >
+            RELEASE HOUNDS
+          </button>
+        )}
         <button onClick={() => setStarted(false)}>EXIT</button>
       </div>
     </div>
