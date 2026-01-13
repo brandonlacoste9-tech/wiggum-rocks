@@ -118,7 +118,7 @@ app.post("/api/checkout", async (req, res) => {
   let name = "Ralph Wiggum PRO License";
 
   if (tier === "enterprise") {
-    price = 99900; // $999.00
+    price = 9999; // $99.99
     name = "Mr. Burns ENTERPRISE License";
   }
 
