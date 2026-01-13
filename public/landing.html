@@ -163,25 +163,28 @@
             <li>On-Premise</li>
             <li>SLA Guarantee</li>
           </ul>
-          <button class="btn btn-gold" onclick="buyEnterprise()">BUY NOW ($999)</button>
+          <button class="btn btn-gold" onclick="buyEnterprise()">
+            BUY NOW ($1,000)
+          </button>
         </div>
       </div>
-  
+
       <p style="font-size: 10px; color: #666">Running on wiggum.rocks v1.0.0</p>
     </div>
     <script>
       async function checkout(tier) {
         // Find button to update text
-        const selector = tier === 'enterprise' ? '.card.ent button' : '.card.pro button';
+        const selector =
+          tier === "enterprise" ? ".card.ent button" : ".card.pro button";
         const btn = document.querySelector(selector);
         const originalText = btn.innerText;
         btn.innerText = "PROCESSING...";
-        
+
         try {
-          const res = await fetch('/api/checkout', { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tier })
+          const res = await fetch("/api/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tier }),
           });
           const data = await res.json();
           if (data.url) window.location.href = data.url;
@@ -192,8 +195,12 @@
         }
       }
 
-      function buyPro() { checkout('pro'); }
-      function buyEnterprise() { checkout('enterprise'); }
+      function buyPro() {
+        checkout("pro");
+      }
+      function buyEnterprise() {
+        checkout("enterprise");
+      }
     </script>
   </body>
 </html>
