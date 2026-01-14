@@ -90,14 +90,22 @@ app.post("/api/gemini", verifyLicence, async (req, res) => {
     return res.status(500).json({ error: "GEMINI_API_KEY missing" });
 
   try {
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(req.body),
-      }
-    );
+    // Vertex AI / Google AI Studio (Flash 2.5 Lite)
+    const MODEL_ID = "gemini-2.5-flash-lite";
+    const BASE_URL = "https://aiplatform.googleapis.com/v1/publishers/google/models";
+    const GEMINI_URL = `${BASE_URL}/${MODEL_ID}:generateContent?key=${GEMINI_API_KEY}`;
+
+    const geminiRes = await fetch(GEMINI_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: req.body.contents,
+        generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 2048
+        }
+      })
+    });
 
     if (!geminiRes.ok) throw new Error(await geminiRes.text());
     const data = await geminiRes.json();
