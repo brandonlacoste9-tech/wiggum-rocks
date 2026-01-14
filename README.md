@@ -2,6 +2,8 @@
 
 > **The Hybrid AI Surgical Engine.**
 
+### 🔴 **LIVE DEMO:** [https://wiggum-rocks.vercel.app](https://wiggum-rocks.vercel.app)
+
 This is a proof-of-concept IDE that uses a "Local Brain" (Ollama/Ralph) for syntax/basic fixes and a "Cloud Brain" (Gemini/Lisa) for complex reasoning, gated by a license system.
 
 ## 🚀 Quick Start

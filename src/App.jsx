@@ -189,6 +189,12 @@ function App() {
             if (licenseInfo.tier === 'enterprise') speak("Excellent", "burns");
             else speak("Using the computer!", "ralph");
         }}>START GAME</button>
+        
+        <div style={{marginTop: 20, display: 'flex', gap: '10px', justifyContent: 'center'}}>
+            <a href="/pricing" className="btn" style={{fontSize: '12px', textDecoration: 'none', color: '#0f0', border: '2px solid #0f0', padding: '10px'}}>BUY LICENSE</a>
+            <a href="/activate" className="btn" style={{fontSize: '12px', textDecoration: 'none', color: '#0f0', border: '2px solid #0f0', padding: '10px'}}>ENTER KEY</a>
+        </div>
+
         <div style={{marginTop: 20, fontSize: 10}}>LICENSE: {licenseInfo.tier.toUpperCase()}</div>
       </div>
     );
