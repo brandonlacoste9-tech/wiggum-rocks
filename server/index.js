@@ -156,6 +156,7 @@ app.post("/api/checkout", async (req, res) => {
         },
       ],
       mode: "payment",
+      metadata: { tier }, // Store tier for fulfillment
       success_url: `${req.protocol}://${req.get(
         "host"
       )}/success.html?session_id={CHECKOUT_SESSION_ID}&tier=${tier}`,
@@ -203,8 +204,9 @@ app.get("/api/checkout/claim", async (req, res) => {
     }
 
     // Generate License
+    const paidTier = session.metadata?.tier || "pro";
     const payload = {
-      tier: "pro", // Logic could be enhanced to check amount_total
+      tier: paidTier,
       client: session.customer_details?.email || "Valued Customer",
       stripeId: session.id,
       issuedAt: new Date().toISOString(),
