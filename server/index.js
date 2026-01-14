@@ -245,7 +245,8 @@ app.get("/api/status", (req, res) => {
 // ------------------------------------------------------------------
 
 // Marketing Page
-app.get("/pricing", (req, res) => {
+// Marketing Page (Home)
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "landing.html"));
 });
 
@@ -257,14 +258,14 @@ app.get("/activate", (req, res) => {
 // Main App Assets (Vite Build)
 app.use(express.static(path.join(__dirname, "..", "dist")));
 
-// Fallback for SPA routing
-app.get("*", (req, res) => {
-  if (req.accepts("html")) {
-    // Serve the built index.html from dist
+// Main IDE Route
+app.get("/ide", (req, res) => {
     res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
-  } else {
-    res.status(404).end();
-  }
+});
+
+// Fallback for SPA routing (only if starting with /ide or if not found)
+app.get("/ide/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
 });
 
 const PORT = 4000;
