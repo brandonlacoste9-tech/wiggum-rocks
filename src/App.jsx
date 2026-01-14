@@ -8,12 +8,29 @@ function App() {
   const [theme, setTheme] = useState('standard-green');
   const [licenseInfo, setLicenseInfo] = useState({ tier: 'free' });
   const [ralphQuote, setRalphQuote] = useState("I'm learning!");
+  const [showHelp, setShowHelp] = useState(false);
 
   // File System State
   const [files, setFiles] = useState(() => {
     const saved = localStorage.getItem('wiggum_files');
     return saved ? JSON.parse(saved) : {
-      'main.js': '// Write your code here...\nconsole.log("Hello Springfield!");',
+      'main.js': `// ----------------------------------------------------
+// MISSION: BREAK THIS CODE
+// ----------------------------------------------------
+// 1. Ralph (The Infant) fixes syntax errors.
+//    TRY: Delete a bracket '}' or misspell 'function'.
+//
+// 2. Lisa (Locked) fixes logic errors.
+//    TRY: Reference a variable that doesn't exist.
+// ----------------------------------------------------
+
+function startEngine() {
+  const fuel = 100;
+  console.log("Vroom Vroom");
+  return true;
+}
+
+// STEP 3: Press [RUN] or Ctrl+Enter to trigger the AI.`,
       'utils.js': 'export const add = (a, b) => a + b;',
       'notes.txt': 'Ralph is a good boy.'
     };
@@ -203,7 +220,7 @@ function App() {
   return (
     <div className={`screen main-ui ${theme}`} style={{'--theme-color': theme === 'luxury-gold' ? '#ffd700' : '#0ff'}}>
       <div className="header">
-        <span>MODE: {licenseInfo.tier === 'enterprise' ? '👑 GOD' : '👶 INFANT'}</span>
+        <span>MODE: {licenseInfo.tier === 'enterprise' ? '👑 GOD' : '👶 INFANT (SYNTAX ONLY)'}</span>
         <span>RALPH: "{ralphQuote}"</span>
         <span>LISA: {licenseInfo.tier !== 'free' ? 'ONLINE' : 'LOCKED'}</span>
       </div>
@@ -213,7 +230,10 @@ function App() {
            <div className="sidebar-actions sidebar-tools">
              <button onClick={addFile}>+ NEW</button>
              <button onClick={deleteFile}>- DEL</button>
-             <button onClick={askMilhouse} style={{color: '#89CFF0'}}>👓 HELP</button>
+             <button onClick={() => {
+                 setShowHelp(true);
+                 askMilhouse();
+             }} style={{color: '#89CFF0'}}>👓 HELP</button>
            </div>
            <ul className="file-list">
              {Object.keys(files).map(f => (
@@ -258,6 +278,38 @@ function App() {
         )}
         <button onClick={() => setStarted(false)}>EXIT</button>
       </div>
+
+      {showHelp && (
+        <div style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', 
+            background: 'rgba(0,0,0,0.9)', zIndex: 9999, 
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+            <div className="panel" style={{
+                width: '500px', padding: '20px', 
+                boxShadow: '0 0 20px var(--neon-pink)', 
+                background: '#111', border: '2px solid var(--neon-pink)',
+                textAlign: 'left'
+            }}>
+                <h2 style={{color: 'var(--neon-pink)', textAlign: 'center', marginTop: 0}}>HOW TO PLAY</h2>
+                <ul style={{fontSize: '12px', lineHeight: 1.8, color: '#fff', listStyle: 'none', padding: 0}}>
+                <li>🛑 <strong>GOAL:</strong> Write broken JavaScript.</li>
+                <li>👶 <strong>RALPH:</strong> Runs locally (Ollama). He fixes typos, missing brackets, and syntax crashes. He is free but not very smart.</li>
+                <li>🧠 <strong>LISA:</strong> Runs in the cloud (Gemini). She understands logic, context, and intent. <span style={{color: 'var(--neon-pink)'}}>Requires License.</span></li>
+                <li>🚨 <strong>187 ALARM:</strong> Triggers when code fails.</li>
+                </ul>
+                <button onClick={() => setShowHelp(false)} 
+                        style={{
+                            width: '100%', marginTop: '20px', padding: '15px', 
+                            background: '#000', color: '#0ff', 
+                            border: '2px solid #0ff', cursor: 'pointer',
+                            fontFamily: '"Press Start 2P", cursive'
+                        }}>
+                GOT IT
+                </button>
+            </div>
+        </div>
+      )}
     </div>
   );
 }
